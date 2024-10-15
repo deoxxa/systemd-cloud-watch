@@ -1,21 +1,21 @@
 package cloud_watch
 
 import (
-	"github.com/coreos/go-systemd/sdjournal"
 	"strconv"
 	"time"
+
+	lg "github.com/advantageous/go-logback/logging"
+	"github.com/coreos/go-systemd/sdjournal"
 )
+
+var journalLogger = lg.NewSimpleLogger("journal")
 
 type SdJournal struct {
 	journal *sdjournal.Journal
-	logger  *Logger
 	debug   bool
 }
 
 func NewJournal(config *Config) (Journal, error) {
-
-	logger := NewSimpleLogger("journal", config)
-
 	var debug bool
 
 	if config == nil {
@@ -26,16 +26,12 @@ func NewJournal(config *Config) (Journal, error) {
 
 	if config == nil || config.JournalDir == "" {
 		journal, err := sdjournal.NewJournal()
-		return &SdJournal{
-			journal, logger, debug,
-		}, err
+		return &SdJournal{journal, debug}, err
 	} else {
-		logger.Info.Printf("using journal dir: %s", config.JournalDir)
-		journal, err := sdjournal.NewJournalFromDir(config.JournalDir)
+		journalLogger.Infof("using journal dir: %s", config.JournalDir)
 
-		return &SdJournal{
-			journal, logger, debug,
-		}, err
+		journal, err := sdjournal.NewJournalFromDir(config.JournalDir)
+		return &SdJournal{journal, debug}, err
 	}
 
 }
@@ -61,7 +57,7 @@ func (journal *SdJournal) Close() error {
 func (journal *SdJournal) Next() (uint64, error) {
 	loc, err := journal.journal.Next()
 	if journal.debug {
-		journal.logger.Info.Printf("NEXT location %d %v", loc, err)
+		journalLogger.Infof("NEXT location %d %v", loc, err)
 	}
 
 	return loc, err
