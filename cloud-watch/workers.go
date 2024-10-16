@@ -2,12 +2,13 @@ package cloud_watch
 
 import (
 	"fmt"
-	q "github.com/advantageous/go-qbit/qbit"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
 	lg "github.com/advantageous/go-logback/logging"
+	q "github.com/advantageous/go-qbit/qbit"
 )
 
 type Runner struct {
@@ -89,7 +90,7 @@ func NewRunnerInternal(journal Journal, repeater JournalRepeater, logger lg.Logg
 				r.sendBatch()
 				now := time.Now().Unix()
 				if now-r.lastMetricTime > 120 {
-					now = r.lastMetricTime
+					r.lastMetricTime = now
 					r.logger.Infof("Systemd CloudWatch: batches sent %d, idleCount %d,  emptyCount %d",
 						r.batchCounter, r.idleCounter, r.emptyCounter)
 				}
