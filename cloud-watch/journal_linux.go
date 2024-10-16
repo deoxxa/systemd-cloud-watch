@@ -37,15 +37,21 @@ func NewJournal(config *Config) (Journal, error) {
 }
 
 func (journal *SdJournal) AddLogFilters(config *Config) {
-
 	// Add Priority Filters
 	if config.GetJournalDLogPriority() < DEBUG {
 		for p, _ := range PriorityJsonMap {
 			if p <= config.GetJournalDLogPriority() {
-				journal.journal.AddMatch("PRIORITY=" + strconv.Itoa(int(p)))
+				m := sdjournal.Match{Field: sdjournal.SD_JOURNAL_FIELD_PRIORITY, Value: strconv.Itoa(int(p))}
+				journal.journal.AddMatch(m.String())
 			}
 		}
+
 		journal.journal.AddDisjunction()
+	}
+
+	if config.LogUnit != "" {
+		m := sdjournal.Match{Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT, Value: config.LogUnit}
+		journal.journal.AddMatch(m.String())
 	}
 }
 

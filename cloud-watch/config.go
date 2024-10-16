@@ -1,9 +1,10 @@
 package cloud_watch
 
 import (
-	"github.com/hashicorp/hcl"
 	"io/ioutil"
+
 	lg "github.com/advantageous/go-logback/logging"
+	"github.com/hashicorp/hcl"
 )
 
 type Config struct {
@@ -12,6 +13,7 @@ type Config struct {
 	LogGroupName         string   `hcl:"log_group"`
 	LogStreamName        string   `hcl:"log_stream"`
 	LogPriority          string   `hcl:"log_priority"`
+	LogUnit              string   `hcl:"log_unit"`
 	JournalDir           string   `hcl:"journal_dir"`
 	QueueChannelSize     int      `hcl:"queue_channel_size"`
 	QueuePollDurationMS  uint64   `hcl:"queue_poll_duration_ms"`
@@ -88,7 +90,6 @@ func arrayToMap(array []string) map[string]struct{} {
 }
 
 func LoadConfigFromString(data string, logger lg.Logger) (*Config, error) {
-
 	if logger == nil {
 		logger = lg.NewSimpleLogger("SYSTEMD_CONFIG_DEBUG")
 	}
